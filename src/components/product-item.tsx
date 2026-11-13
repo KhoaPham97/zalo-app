@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "zmp-ui";
 import { useAddToCart } from "@/hooks";
 import QuantityInput from "./quantity-input";
+import { resolveImageUrl } from "@/utils/image";
 
 export interface ProductItemProps {
   product: Product;
@@ -26,7 +27,7 @@ export default function ProductItem(props: ProductItemProps) {
         {({ isTransitioning }) => (
           <>
             <img
-              src={props.product.thumbnail}
+              src={resolveImageUrl(props.product.thumbnail || props.product.image)}
               className="w-full aspect-square object-cover rounded-xl bg-background"
               style={{ viewTransitionName: isTransitioning ? `product-image-${props.product._id}` : undefined }}
               alt={props.product.title}
