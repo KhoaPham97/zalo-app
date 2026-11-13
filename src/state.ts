@@ -25,6 +25,7 @@ import { calculateDistance } from "./utils/location";
 import { formatDistant } from "./utils/format";
 import CONFIG from "./config";
 import { getRequest } from "./api/ApiMethod";
+import { API_ENDPOINTS } from "./api.ts";
 import { jwtDecode } from "jwt-decode";
 
 export const userInfoKeyState = atom(0);
@@ -91,7 +92,7 @@ export const tabsState = atom(["Tất cả", "Nam", "Nữ", "Trẻ em"]);
 export const selectedTabIndexState = atom(0);
 
 export const categoriesState = atom(async () => {
-  let data = await getRequest({ url: "/categorys" });
+  let data = await getRequest({ url: API_ENDPOINTS.PRODUCTS_CATEGORIES });
   return data?.categorys ?? [];
 });
 
@@ -101,7 +102,7 @@ export const categoriesStateUpwrapped = unwrap(
 );
 
 export const productsState = atom(async (get) => {
-  let data = await getRequest({ url: "/products" });
+  let data = await getRequest({ url: API_ENDPOINTS.PRODUCTS });
   return data?.products ?? [];
 });
 
@@ -195,7 +196,7 @@ export const ordersState = atomFamily((status: OrderStatus) =>
     let userInfo: any = localStorage.getItem(CONFIG.STORAGE_KEYS.USER_INFO);
     let phone = JSON.parse(userInfo).phone;
     console.log(JSON.parse(userInfo));
-    let data = await getRequest({ url: "/orders?phone=" + phone });
+    let data = await getRequest({ url: API_ENDPOINTS.ORDERS, params: { phone } });
     return data.orders ?? [];
   })
 );
