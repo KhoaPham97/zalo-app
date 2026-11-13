@@ -5,6 +5,7 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { Suspense } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { resolveImageUrl } from "@/utils/image";
 
 function Station({
   station,
