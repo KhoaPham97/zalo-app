@@ -1,6 +1,6 @@
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { loadable } from "jotai/utils";
-import { MutableRefObject, useLayoutEffect, useMemo, useState } from "react";
+import { MutableRefObject, useLayoutEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { UIMatch, useMatches, useNavigate } from "react-router-dom";
 import { cartState, deliveryModeState, selectedStationState, shippingAddressState, orderNoteState, orderRefreshState } from "@/state";
@@ -63,41 +63,83 @@ export function useCheckout() {
   const [note, setNote] = useAtom(orderNoteState);
   const refreshOrders = useSetAtom(orderRefreshState);
   const navigate = useNavigate();
+  const checkoutLock = useRef(false);
 
   return async () => {
-    if (!cart.length) { toast.error("Giỏ hàng đang trống"); return; }
-    let savedUser: any = {};
-    try { savedUser = JSON.parse(localStorage.getItem("userInfo") || "{}"); } catch {}
-    const customerName = String(address?.name || savedUser?.name || "").trim();
-    const customerPhone = String(address?.phone || (typeof savedUser?.phone === "string" ? savedUser.phone : "")).trim();
-    if (deliveryMode === "pickup" && !station) {
-      toast.error("Chưa tải được điểm nhận hàng. Vui lòng thử lại sau giây lát.");
-      return;
+    if (checkoutLock.current) return;
+    checkoutLock.current = true;
+
+    try {
+      if (!cart.length) {
+        toast.error("Giỏ hàng đang trống");
+        return;
+      }
+
+      let savedUser: any = {};
+      try {
+        savedUser = JSON.parse(localStorage.getItem("userInfo") || "{}");
+      } catch {}
+
+      const customerName = String(address?.name || savedUser?.name || "").trim();
+      const customerPhone = String(address?.phone || (typeof savedUser?.phone === "string" ? savedUser.phone : "")).trim();
+      const normalizedPhone = customerPhone.replace(/[\\s()+.-]/g, "");
+
+      if (deliveryMode === "pickup" && (!station || stationResult.state !== "hasData")) {
+        toast.error("Chưa tải được điểm nhận hàng. Vui lòng thử lại sau giây lát.");
+        return;
+      }
+
+      const customerAddress = deliveryMode === "pickup"
+        ? String(station?.address || "").trim()
+        : String(address?.address || "").trim();
+
+      if (!customerName || !customerPhone || !customerAddress) {
+        toast.error("Vui lòng nhập tên, số điện thoại và địa chỉ nhận hàng trước khi đặt");
+        navigate("/shipping-address");
+        return;
+      }
+
+      if (!/^\\+?\\d{9,12}$/.test(normalizedPhone)) {
+        toast.error("Số điện thoại chưa hợp lệ. Vui lòng kiểm tra lại.");
+        navigate("/shipping-address");
+        return;
+      }
+
+      const deliveryNote = deliveryMode === "pickup"
+        ? `Nhận tại cửa hàng: ${station?.name || ""} - ${customerAddress}`
+        : `Giao tận nơi: ${customerAddress}`;
+
+      const payload = {
+        customerName,
+        customerPhone,
+        customerAddress,
+        paymentMethod: "cod",
+        note: [deliveryNote, String(note || "").trim()].filter(Boolean).join(" | "),
+        items: cart.map((item) => ({
+          productId: String(item.product._id),
+          qty: item.quantity,
+          variantName: item.variant?.name || "",
+          variantCode: item.variant?.variantCode || "",
+        })),
+      };
+
+      const response: any = await postRequest({ url: API_ENDPOINTS.ORDERS, data: payload });
+      if (!response || response.response || response.success !== true || !response.order) {
+        toast.error(response?.response?.data?.message || response?.message || "Không thể gửi đơn hàng. Vui lòng thử lại.");
+        return;
+      }
+
+      setCart([]);
+      setNote("");
+      refreshOrders((value) => value + 1);
+      toast.success(`Đã gửi đơn hàng ${response.order.code || ""}. Nhân viên sẽ liên hệ xác nhận.`, { duration: 5000 });
+      navigate("/orders/pending", { viewTransition: true });
+    } catch (error: any) {
+      console.error("Zalo checkout error:", error);
+      toast.error(error?.response?.data?.message || error?.message || "Có lỗi khi gửi đơn hàng. Vui lòng thử lại.");
+    } finally {
+      checkoutLock.current = false;
     }
-    const customerAddress = deliveryMode === "pickup" ? String(station?.address || "").trim() : String(address?.address || "").trim();
-    if (!customerName || !customerPhone || !customerAddress) {
-      toast.error("Vui lòng nhập tên, số điện thoại và địa chỉ nhận hàng trước khi đặt");
-      navigate("/shipping-address");
-      return;
-    }
-    const payload = {
-      customerName, customerPhone, customerAddress, paymentMethod: "cod",
-      note: [deliveryMode === "pickup" ? "Hình thức nhận: Khách tự đến lấy" : "Hình thức nhận: Giao tận nơi", String(note || "").trim()].filter(Boolean).join(" | "),
-      items: cart.map((item) => ({
-        productId: String(item.product._id), qty: item.quantity,
-        variantName: item.variant?.name || "", variantCode: item.variant?.variantCode || "",
-      })),
-    };
-    const response: any = await postRequest({ url: API_ENDPOINTS.ORDERS, data: payload });
-    if (!response || response.response || response.success !== true || !response.order) {
-      toast.error(response?.response?.data?.message || response?.message || "Không thể gửi đơn hàng. Vui lòng thử lại.");
-      return;
-    }
-    setCart([]);
-    setNote("");
-    refreshOrders((value) => value + 1);
-    toast.success(`Đã gửi đơn hàng ${response.order.code || ""}. Nhân viên sẽ liên hệ xác nhận.`, { duration: 5000 });
-    navigate("/orders/pending", { viewTransition: true });
   };
 }
 
