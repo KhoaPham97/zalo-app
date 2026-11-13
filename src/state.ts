@@ -205,7 +205,7 @@ export const ordersState = atomFamily((status: OrderStatus) =>
 
     const data = await getRequest({
       url: API_ENDPOINTS.ORDERS,
-      params: { phone },
+      params: { phone, limit: 100 },
     });
     if (!data || data.response || !Array.isArray(data.orders)) return [];
 
