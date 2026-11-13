@@ -1,6 +1,7 @@
 import TransitionLink from "@/components/transition-link";
 import { useAtomValue } from "jotai";
 import { categoriesState } from "@/state";
+import { resolveImageUrl } from "@/utils/image";
 
 const groups = [
   { type: "1", title: "Xe đạp", subtitle: "Phụ tùng và phụ kiện xe đạp", emoji: "🚲", tone: "from-blue-600 to-cyan-500" },
@@ -27,7 +28,7 @@ export default function Category() {
           >
             <div className="absolute inset-0 bg-gradient-to-r from-blue-50 via-white to-sky-50" />
             {cover ? (
-              <img src={cover} alt="" className="absolute right-0 top-0 h-full w-32 object-cover opacity-20" loading="lazy" />
+              <img src={resolveImageUrl(cover)} alt="" className="absolute right-0 top-0 h-full w-32 object-cover opacity-20" loading="lazy" />
             ) : null}
             <div className="relative flex min-h-[112px] items-center gap-4 p-4">
               <div className={`flex h-16 w-16 flex-none items-center justify-center rounded-2xl bg-gradient-to-br ${group.tone} text-3xl text-white shadow-md`}>
