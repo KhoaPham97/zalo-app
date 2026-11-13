@@ -1,9 +1,9 @@
-import { useAtom, useAtomValue } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { loadable } from "jotai/utils";
 import { MutableRefObject, useLayoutEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { UIMatch, useMatches, useNavigate } from "react-router-dom";
-import { cartState, deliveryModeState, selectedStationState, shippingAddressState, orderNoteState } from "@/state";
+import { cartState, deliveryModeState, selectedStationState, shippingAddressState, orderNoteState, orderRefreshState } from "@/state";
 import { Product, ProductVariant } from "@/types";
 import { getConfig } from "@/utils/template";
 import { openChat } from "zmp-sdk";
@@ -61,6 +61,7 @@ export function useCheckout() {
   const stationResult = useAtomValue(stationAtom);
   const station = stationResult.state === "hasData" ? stationResult.data : undefined;
   const [note, setNote] = useAtom(orderNoteState);
+  const refreshOrders = useSetAtom(orderRefreshState);
   const navigate = useNavigate();
 
   return async () => {
@@ -94,6 +95,7 @@ export function useCheckout() {
     }
     setCart([]);
     setNote("");
+    refreshOrders((value) => value + 1);
     toast.success(`Đã gửi đơn hàng ${response.order.code || ""}. Nhân viên sẽ liên hệ xác nhận.`, { duration: 5000 });
     navigate("/orders/pending", { viewTransition: true });
   };
