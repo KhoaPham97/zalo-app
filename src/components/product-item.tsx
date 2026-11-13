@@ -14,6 +14,7 @@ export default function ProductItem(props: ProductItemProps) {
   const navigate = useNavigate();
   const { addToCart, cartQuantity } = useAddToCart(props.product);
   const hasVariants = Array.isArray(props.product.variants) && props.product.variants.length > 0;
+  const stockQty = Number(props.product.qty ?? props.product.variants?.reduce((sum, variant) => sum + (Number(variant.qty) || 0), 0) ?? 0);
 
   return (
     <div className="flex flex-col cursor-pointer group bg-section rounded-2xl border border-black/5 overflow-hidden">
@@ -34,7 +35,7 @@ export default function ProductItem(props: ProductItemProps) {
             <div className="pt-2 pb-1">
               <div className="text-xs min-h-9 line-clamp-2 font-medium">{props.product.title}</div>
               <div className="mt-1 text-2xs text-subtitle">
-                {Number(props.product.qty || 0) > 0 ? `Còn hàng: ${props.product.qty}` : "Liên hệ kiểm tra hàng"}
+                {stockQty > 0 ? `Còn hàng: ${stockQty}` : "Liên hệ kiểm tra hàng"}
               </div>
             </div>
           </>
