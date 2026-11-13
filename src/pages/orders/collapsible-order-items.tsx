@@ -16,7 +16,7 @@ function CollapsibleOrderItems(props: {
     <>
       <List noSpacing>
         {displayItems.map((item) => (
-          <OrderItem key={item.product._id} {...item} />
+          <OrderItem key={`${item.product._id}-${item.variant?.variantCode || item.variant?.name || "default"}`} {...item} />
         ))}
       </List>
       {displayItems.length < props.items.length && (
