@@ -109,7 +109,7 @@ export const flashSaleProductsState = atom((get) => get(productsState));
 
 export const recommendedProductsState = atom((get) => get(productsState));
 
-export const productState = atomFamily((id: number) =>
+export const productState = atomFamily((id: string | number) =>
   atom(async (get) => {
     const products = await get(productsState);
     return products.find((product) => product._id === id);
