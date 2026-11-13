@@ -1,6 +1,6 @@
 import { Product } from "@/types";
 import TransitionLink from "./transition-link";
-import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "zmp-ui";
 import { useAddToCart } from "@/hooks";
 import QuantityInput from "./quantity-input";
@@ -11,7 +11,7 @@ export interface ProductItemProps {
 }
 
 export default function ProductItem(props: ProductItemProps) {
-  const [selected, setSelected] = useState(false);
+  const navigate = useNavigate();
   const { addToCart, cartQuantity } = useAddToCart(props.product);
   const hasVariants = Array.isArray(props.product.variants) && props.product.variants.length > 0;
 
@@ -27,7 +27,7 @@ export default function ProductItem(props: ProductItemProps) {
             <img
               src={props.product.thumbnail}
               className="w-full aspect-square object-cover rounded-xl bg-background"
-              style={{ viewTransitionName: isTransitioning && selected ? `product-image-${props.product._id}` : undefined }}
+              style={{ viewTransitionName: isTransitioning ? `product-image-${props.product._id}` : undefined }}
               alt={props.product.title}
               loading="lazy"
             />
@@ -42,8 +42,8 @@ export default function ProductItem(props: ProductItemProps) {
       </TransitionLink>
       <div className="p-2 pt-1 mt-auto">
         {hasVariants ? (
-          <Button variant="secondary" size="small" fullWidth onClick={() => setSelected(true)}>
-            <span onClick={(event) => { event.stopPropagation(); }}>Chọn phân loại</span>
+          <Button variant="secondary" size="small" fullWidth onClick={() => navigate(`/product/${props.product._id}`)}>
+            Chọn phân loại
           </Button>
         ) : cartQuantity === 0 ? (
           <Button variant="secondary" size="small" fullWidth onClick={() => addToCart(1, { toast: true })}>
