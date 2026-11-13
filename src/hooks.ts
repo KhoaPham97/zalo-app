@@ -1,141 +1,101 @@
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import { MutableRefObject, useLayoutEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { UIMatch, useMatches, useNavigate } from "react-router-dom";
-import { cartState, cartTotalState } from "@/state";
-import { Product } from "@/types";
+import { cartState, deliveryModeState, selectedStationState, shippingAddressState, orderNoteState } from "@/state";
+import { Product, ProductVariant } from "@/types";
 import { getConfig } from "@/utils/template";
-import { createOrder, openChat, purchase } from "zmp-sdk";
+import { openChat } from "zmp-sdk";
+import { API_ENDPOINTS } from "@/api";
+import { postRequest } from "@/api/ApiMethod";
 
-export function useRealHeight(
-  element: MutableRefObject<HTMLDivElement | null>,
-  defaultValue?: number
-) {
+export function useRealHeight(element: MutableRefObject<HTMLDivElement | null>, defaultValue?: number) {
   const [height, setHeight] = useState(defaultValue ?? 0);
   useLayoutEffect(() => {
     if (element.current && typeof ResizeObserver !== "undefined") {
-      const ro = new ResizeObserver((entries: ResizeObserverEntry[]) => {
-        const [{ contentRect }] = entries;
-        setHeight(contentRect.height);
-      });
+      const ro = new ResizeObserver((entries: ResizeObserverEntry[]) => setHeight(entries[0].contentRect.height));
       ro.observe(element.current);
       return () => ro.disconnect();
     }
     return () => {};
   }, [element.current]);
-
-  if (typeof ResizeObserver === "undefined") {
-    return -1;
-  }
-  return height;
+  return typeof ResizeObserver === "undefined" ? -1 : height;
 }
 
-export function useAddToCart(product: Product) {
+const variantKey = (variant?: ProductVariant) => variant ? String(variant.variantCode || variant.name || "") : "";
+
+export function useAddToCart(product: Product, variant?: ProductVariant) {
   const [cart, setCart] = useAtom(cartState);
-
+  const key = variantKey(variant);
   const currentCartItem = useMemo(
-    () => cart.find((item) => item?.product?._id === product?._id),
-    [cart, product?._id]
+    () => cart.find((item) => String(item.product?._id) === String(product?._id) && variantKey(item.variant) === key),
+    [cart, product?._id, key]
   );
-
-  const addToCart = (
-    quantity: number | ((oldQuantity: number) => number),
-    options?: { toast: boolean }
-  ) => {
-    setCart((cart) => {
-      const newQuantity =
-        typeof quantity === "function"
-          ? quantity(currentCartItem?.quantity ?? 0)
-          : quantity;
-      if (newQuantity <= 0) {
-        cart.splice(cart.indexOf(currentCartItem!), 1);
-      } else {
-        if (currentCartItem) {
-          currentCartItem.quantity = newQuantity;
-        } else {
-          cart.push({
-            product,
-            quantity: newQuantity,
-          });
-        }
-      }
-      return [...cart];
+  const addToCart = (quantity: number | ((oldQuantity: number) => number), options?: { toast: boolean }) => {
+    setCart((current) => {
+      const index = current.findIndex((item) => String(item.product?._id) === String(product?._id) && variantKey(item.variant) === key);
+      const oldQuantity = index >= 0 ? current[index].quantity : 0;
+      const nextQuantity = typeof quantity === "function" ? quantity(oldQuantity) : quantity;
+      if (nextQuantity <= 0) return current.filter((_, itemIndex) => itemIndex !== index);
+      if (index >= 0) return current.map((item, itemIndex) => itemIndex === index ? { ...item, quantity: nextQuantity } : item);
+      return [...current, { product, quantity: nextQuantity, ...(variant ? { variant } : {}) }];
     });
-    if (options?.toast) {
-      toast.success("Đã thêm vào giỏ hàng");
-    }
+    if (options?.toast) toast.success("Đã thêm vào giỏ hàng");
   };
-
   return { addToCart, cartQuantity: currentCartItem?.quantity ?? 0 };
 }
 
 export function useCustomerSupport() {
-  return () =>
-    openChat({
-      type: "oa",
-      id: getConfig((config) => config.template.oaIDtoOpenChat),
-    });
+  return () => openChat({ type: "oa", id: getConfig((config) => config.template.oaIDtoOpenChat) });
 }
-
 export function useToBeImplemented() {
-  return () =>
-    toast("Chức năng dành cho các bên tích hợp phát triển...", {
-      icon: "🛠️",
-    });
+  return () => toast("Chức năng đang được hoàn thiện", { icon: "🛠️" });
 }
 
 export function useCheckout() {
-  const { totalAmount } = useAtomValue(cartTotalState);
   const [cart, setCart] = useAtom(cartState);
-  console.log("cart", cart);
+  const address = useAtomValue(shippingAddressState);
+  const deliveryMode = useAtomValue(deliveryModeState);
+  const station = useAtomValue(selectedStationState);
+  const [note, setNote] = useAtom(orderNoteState);
   const navigate = useNavigate();
-  return async () => {
-    try {
-      await createOrder({
-        amount: totalAmount,
-        desc: "Thanh toán đơn hàng",
-        item: cart.map((item) => ({
-          id: item.product._id,
-          name: item.product.title || item.product.name || "",
-          price: Number(item.product.price) || 0,
-          quantity: item.quantity,
-        })),
-      }).then((res) => {
-        console.log(res);
-      });
 
-      setCart([]);
-      navigate("/orders", {
-        viewTransition: true,
-      });
-      toast.success("Thanh toán thành công. Cảm ơn bạn đã mua hàng!", {
-        icon: "🎉",
-        duration: 5000,
-      });
-    } catch (error) {
-      console.warn(error);
-      toast.error(
-        "Thanh toán thất bại. Vui lòng kiểm tra nội dung lỗi bên trong Console."
-      );
+  return async () => {
+    if (!cart.length) { toast.error("Giỏ hàng đang trống"); return; }
+    let savedUser: any = {};
+    try { savedUser = JSON.parse(localStorage.getItem("userInfo") || "{}"); } catch {}
+    const customerName = String(address?.name || savedUser?.name || "").trim();
+    const customerPhone = String(address?.phone || (typeof savedUser?.phone === "string" ? savedUser.phone : "")).trim();
+    const customerAddress = deliveryMode === "pickup" ? String(station?.address || "") : String(address?.address || "").trim();
+    if (!customerName || !customerPhone || !customerAddress) {
+      toast.error("Vui lòng nhập tên, số điện thoại và địa chỉ nhận hàng trước khi đặt");
+      navigate("/shipping-address");
+      return;
     }
+    const payload = {
+      customerName, customerPhone, customerAddress, paymentMethod: "cod", note: String(note || "").trim(),
+      items: cart.map((item) => ({
+        productId: String(item.product._id), qty: item.quantity,
+        variantName: item.variant?.name || "", variantCode: item.variant?.variantCode || "",
+      })),
+    };
+    const response: any = await postRequest({ url: API_ENDPOINTS.ORDERS, data: payload });
+    if (!response || response.response || response.success !== true || !response.order) {
+      toast.error(response?.response?.data?.message || response?.message || "Không thể gửi đơn hàng. Vui lòng thử lại.");
+      return;
+    }
+    setCart([]);
+    setNote("");
+    toast.success(`Đã gửi đơn hàng ${response.order.code || ""}. Nhân viên sẽ liên hệ xác nhận.`, { duration: 5000 });
+    navigate("/orders/pending", { viewTransition: true });
   };
 }
 
 export function useRouteHandle() {
-  const matches = useMatches() as UIMatch<
-    undefined,
-    | {
-        title?: string | Function;
-        logo?: boolean;
-        search?: boolean;
-        noFooter?: boolean;
-        noBack?: boolean;
-        noFloatingCart?: boolean;
-        scrollRestoration?: number;
-      }
-    | undefined
-  >[];
+  const matches = useMatches() as UIMatch<undefined, {
+    title?: string | Function; logo?: boolean; search?: boolean; noFooter?: boolean; noBack?: boolean;
+    noFloatingCart?: boolean; scrollRestoration?: number;
+  } | undefined>[];
   const lastMatch = matches[matches.length - 1];
-
   return [lastMatch.handle, lastMatch, matches] as const;
 }
