@@ -1,4 +1,5 @@
 import { useAtom, useAtomValue } from "jotai";
+import { loadable } from "jotai/utils";
 import { MutableRefObject, useLayoutEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { UIMatch, useMatches, useNavigate } from "react-router-dom";
@@ -56,7 +57,9 @@ export function useCheckout() {
   const [cart, setCart] = useAtom(cartState);
   const address = useAtomValue(shippingAddressState);
   const deliveryMode = useAtomValue(deliveryModeState);
-  const station = useAtomValue(selectedStationState);
+  const stationAtom = useMemo(() => loadable(selectedStationState), []);
+  const stationResult = useAtomValue(stationAtom);
+  const station = stationResult.state === "hasData" ? stationResult.data : undefined;
   const [note, setNote] = useAtom(orderNoteState);
   const navigate = useNavigate();
 
@@ -66,14 +69,15 @@ export function useCheckout() {
     try { savedUser = JSON.parse(localStorage.getItem("userInfo") || "{}"); } catch {}
     const customerName = String(address?.name || savedUser?.name || "").trim();
     const customerPhone = String(address?.phone || (typeof savedUser?.phone === "string" ? savedUser.phone : "")).trim();
-    const customerAddress = deliveryMode === "pickup" ? String(station?.address || "") : String(address?.address || "").trim();
+    const customerAddress = deliveryMode === "pickup" ? String(station?.address || "").trim() : String(address?.address || "").trim();
     if (!customerName || !customerPhone || !customerAddress) {
       toast.error("Vui lòng nhập tên, số điện thoại và địa chỉ nhận hàng trước khi đặt");
       navigate("/shipping-address");
       return;
     }
     const payload = {
-      customerName, customerPhone, customerAddress, paymentMethod: "cod", note: String(note || "").trim(),
+      customerName, customerPhone, customerAddress, paymentMethod: "cod",
+      note: [deliveryMode === "pickup" ? "Hình thức nhận: Khách tự đến lấy" : "Hình thức nhận: Giao tận nơi", String(note || "").trim()].filter(Boolean).join(" | "),
       items: cart.map((item) => ({
         productId: String(item.product._id), qty: item.quantity,
         variantName: item.variant?.name || "", variantCode: item.variant?.variantCode || "",
