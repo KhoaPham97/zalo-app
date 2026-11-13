@@ -82,7 +82,7 @@ export function useCheckout() {
 
       const customerName = String(address?.name || savedUser?.name || "").trim();
       const customerPhone = String(address?.phone || (typeof savedUser?.phone === "string" ? savedUser.phone : "")).trim();
-      const normalizedPhone = customerPhone.replace(/[\\s()+.-]/g, "");
+      const normalizedPhone = customerPhone.replace(/[\s()+.-]/g, "");
 
       if (deliveryMode === "pickup" && (!station || stationResult.state !== "hasData")) {
         toast.error("Chưa tải được điểm nhận hàng. Vui lòng thử lại sau giây lát.");
@@ -99,7 +99,7 @@ export function useCheckout() {
         return;
       }
 
-      if (!/^\\+?\\d{9,12}$/.test(normalizedPhone)) {
+      if (!/^\\d{9,12}$/.test(normalizedPhone)) {
         toast.error("Số điện thoại chưa hợp lệ. Vui lòng kiểm tra lại.");
         navigate("/shipping-address");
         return;
