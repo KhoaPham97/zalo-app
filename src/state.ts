@@ -118,6 +118,7 @@ export const productState = atomFamily((id: string | number) =>
 );
 
 export const cartState = atom<Cart>([]);
+export const orderNoteState = atomWithStorage<string>("nkbike_order_note", "");
 
 export const selectedCartItemIdsState = atom<number[]>([]);
 
@@ -126,7 +127,7 @@ export const cartTotalState = atom((get) => {
   return {
     totalItems: items.length,
     totalAmount: items.reduce(
-      (total, item) => total + (Number(item.product.price) || 0) * item.quantity,
+      (total, item) => total + (Number(item.variant?.price ?? item.product.price) || 0) * item.quantity,
       0
     ),
   };
@@ -193,11 +194,43 @@ export const shippingAddressState = atomWithStorage<
 
 export const ordersState = atomFamily((status: OrderStatus) =>
   atom(async () => {
-    let userInfo: any = localStorage.getItem(CONFIG.STORAGE_KEYS.USER_INFO);
-    let phone = JSON.parse(userInfo).phone;
-    console.log(JSON.parse(userInfo));
-    let data = await getRequest({ url: API_ENDPOINTS.ORDERS, params: { phone } });
-    return data.orders ?? [];
+    let userInfo: any = {};
+    let savedAddress: any = {};
+    try { userInfo = JSON.parse(localStorage.getItem(CONFIG.STORAGE_KEYS.USER_INFO) || "{}"); } catch {}
+    try { savedAddress = JSON.parse(localStorage.getItem(CONFIG.STORAGE_KEYS.SHIPPING_ADDRESS) || "{}"); } catch {}
+    const phone = String(savedAddress.phone || (typeof userInfo.phone === "string" ? userInfo.phone : "")).trim();
+    if (!phone) return [];
+
+    const data = await getRequest({
+      url: API_ENDPOINTS.ORDERS,
+      params: { phone, status },
+    });
+    if (!data || data.response || !Array.isArray(data.orders)) return [];
+
+    return data.orders.map((order: any) => ({
+      id: String(order._id),
+      code: order.code || "",
+      status: order.status || "pending",
+      createdAt: order.created_at ? new Date(order.created_at) : new Date(),
+      note: order.note || "",
+      total: Number(order.totalAmount || 0),
+      delivery: {
+        type: "shipping",
+        alias: "Địa chỉ nhận hàng",
+        address: order.customerAddress || "",
+        name: order.customerName || "",
+        phone: order.customerPhone || "",
+      },
+      items: (order.items || []).map((item: any) => ({
+        product: {
+          _id: String(item.productId || ""),
+          title: item.productTitle || "Sản phẩm",
+          thumbnail: item.thumbnail || "",
+        },
+        quantity: Number(item.qty || 0),
+        ...(item.variantName ? { variant: { name: item.variantName, variantCode: item.variantCode || "" } } : {}),
+      })),
+    }));
   })
 );
 
