@@ -1,5 +1,5 @@
-// Shared API configuration aligned with nk-admin.
-// Local development uses the local Express API; deployed clients use Render.
+// API configuration shared with nk-admin.
+// Local development uses localhost:3001; all deployed frontends use Render API.
 const LOCAL_API_URL = "http://localhost:3001/api";
 const RENDER_API_URL = "https://nkbike.onrender.com/api";
 const CLOUDFLARE_API_URL = RENDER_API_URL;
@@ -23,7 +23,7 @@ const isCloudflareWorkers =
 const configuredApiUrl =
   import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL;
 
-const normalizeApiUrl = (url: string) => String(url).trim().replace(/\/+$/, "");
+const normalizeApiUrl = (url: string) => String(url).trim().replace(/\\/+$/, "");
 
 const detectedApiUrl = isLocalhost
   ? LOCAL_API_URL
@@ -32,20 +32,58 @@ const detectedApiUrl = isLocalhost
     : RENDER_API_URL;
 
 export const BASE_URL = normalizeApiUrl(configuredApiUrl || detectedApiUrl);
-export const DEFAUL_URL = BASE_URL.replace(/\/api$/i, "");
+export const DEFAUL_URL = BASE_URL.replace(/\\/api$/i, "");
 
 export const API_ENDPOINTS = {
+  // AUTH
   SIGNIN: `${BASE_URL}/signin`,
   SIGNUP: `${BASE_URL}/signup`,
   LOGIN: `${BASE_URL}/customers/login`,
+
+  // PRODUCTS
   PRODUCTS: `${BASE_URL}/products`,
   PRODUCTS_CATEGORIES: `${BASE_URL}/categorys`,
   PRODUCTS_SEARCH: `${BASE_URL}/products/search`,
   PRODUCTS_CATEGORY: `${BASE_URL}/products/category`,
+  PRODUCTS_ID: `${BASE_URL}/product/:id`,
+  PRODUCTS_CATEGORY_ID: `${BASE_URL}/products/category/:id`,
+  PRODUCTS_CATEGORY_ID_PRODUCTS: `${BASE_URL}/products/category/:id/products`,
+  PRODUCTS_CATEGORY_ID_PRODUCTS_ID: `${BASE_URL}/products/category/:id/products/:id`,
+  PRODUCTS_CATEGORY_ID_PRODUCTS_ID_PRODUCTS: `${BASE_URL}/products/category/:id/products/:id/products`,
+
+  // VEHICLES
   VEHICLES: `${BASE_URL}/vehicles`,
+  VEHICLE_ID: `${BASE_URL}/vehicles/:id`,
+  VEHICLE_ID_PRODUCTS: `${BASE_URL}/vehicles/:id/products`,
   VEHICLE_BRANDS: `${BASE_URL}/vehicles/brands`,
+  VEHICLES_BY_BRAND: `${BASE_URL}/vehicles/by-brand`,
+
+  // USER
+  USER: `${BASE_URL}/user/:id`,
+  CARTUSER: `${BASE_URL}/user/:id/move-cart-to-db`,
+
+  // CUSTOMERS
   CUSTOMERS: `${BASE_URL}/customers`,
+
+  // ORDERS
   ORDERS: `${BASE_URL}/orders`,
   ORDER: `${BASE_URL}/order`,
+  SYNC_ORDER_VARIANTS: `${BASE_URL}/order/sync-variants`,
+
+  // ANALYTICS
+  ANALYTICS_DASHBOARD: `${BASE_URL}/analytics/dashboard`,
+  ANALYTICS_TRACK: `${BASE_URL}/analytics/track`,
+
+  // SETTINGS
   SETTINGS: `${BASE_URL}/settings`,
+
+  // ADMIN
+  CHANGE_ADMIN_PASSWORD: `${BASE_URL}/admin/change-password`,
+
+  // INVENTORY
+  INVENTORY_HISTORY: `${BASE_URL}/inventory-history`,
+  INVENTORY_RECEIPTS: `${BASE_URL}/inventory`,
+  INVENTORY_BATCHES: `${BASE_URL}/inventory-batch`,
+  INVENTORY_BATCH_IMPORT: `${BASE_URL}/inventory-batch/import`,
+  INVENTORY_BATCH_IMPORT_MULTIPLE: `${BASE_URL}/inventory-batch/import-multiple`,
 };
