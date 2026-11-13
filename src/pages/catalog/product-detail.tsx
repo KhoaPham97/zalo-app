@@ -7,6 +7,7 @@ import RelatedProducts from "./related-products";
 import { useAddToCart } from "@/hooks";
 import { Button } from "zmp-ui";
 import { useMemo, useState } from "react";
+import { resolveImageUrl } from "@/utils/image";
 
 const formatDate = (value?: string | Date) => {
   if (!value) return "";
@@ -79,7 +80,7 @@ export default function ProductDetailPage() {
             {currentImage ? (
               <img
                 key={currentImage}
-                src={currentImage}
+                src={resolveImageUrl(currentImage)}
                 alt={product.title || "Sản phẩm"}
                 className="w-full aspect-square object-contain bg-white p-5"
                 style={{ viewTransitionName: `product-image-${product._id}` }}
@@ -100,7 +101,7 @@ export default function ProductDetailPage() {
                     className={`w-14 h-14 flex-none rounded-xl overflow-hidden border-2 bg-white ${currentImage === image ? "border-blue-600" : "border-gray-100"}`}
                     aria-label={`Xem hình ${index + 1}`}
                   >
-                    <img src={image} alt="" className="w-full h-full object-cover" />
+                    <img src={resolveImageUrl(image)} alt="" className="w-full h-full object-cover" />
                   </button>
                 ))}
               </div>
@@ -163,7 +164,7 @@ export default function ProductDetailPage() {
                   >
                     {(variant.thumbnail || variant.image) ? (
                       <img
-                        src={variant.thumbnail || variant.image}
+                        src={resolveImageUrl(variant.thumbnail || variant.image)}
                         alt={variant.name || "Phân loại"}
                         className="w-16 h-16 flex-none rounded-xl object-cover bg-white"
                       />
