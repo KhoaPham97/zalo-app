@@ -145,8 +145,6 @@ export default function ProductDetailPage() {
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-x-3 gap-y-2 text-xs">
-                      {variant.variantCode && <div><span className="text-subtitle">Mã biến thể: </span>{variant.variantCode}</div>}
-                      {variant.sku && <div><span className="text-subtitle">SKU: </span>{variant.sku}</div>}
                       {Number(variant.weight) > 0 && <div><span className="text-subtitle">Khối lượng: </span>{variant.weight} g</div>}
                       {Number(variant.packageQuantity) > 1 && <div><span className="text-subtitle">Quy cách kiện: </span>{variant.packageQuantity} sản phẩm/kiện</div>}
                     </div>
@@ -191,7 +189,6 @@ export default function ProductDetailPage() {
         <div className="bg-background h-2 w-full" />
         <Section title="Thông tin khác">
           <div className="p-4 pt-2 grid grid-cols-2 gap-3 text-xs">
-            <div><div className="text-subtitle mb-1">Mã sản phẩm</div><div className="font-medium break-all">{String(product._id)}</div></div>
             {product.brand && <div><div className="text-subtitle mb-1">Thương hiệu</div><div className="font-medium">{product.brand}</div></div>}
             {categoryName && <div><div className="text-subtitle mb-1">Danh mục</div><div className="font-medium">{categoryName}</div></div>}
             <div><div className="text-subtitle mb-1">Tình trạng</div><div className="font-medium">{totalQty > 0 ? "Còn hàng" : "Tạm hết hàng"}</div></div>
