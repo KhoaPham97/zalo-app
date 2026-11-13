@@ -2,7 +2,6 @@ import HorizontalDivider from "@/components/horizontal-divider";
 import { useAtomValue } from "jotai";
 import { useNavigate, useParams } from "react-router-dom";
 import { productState } from "@/state";
-import { formatPrice } from "@/utils/format";
 import ShareButton from "./share-buttont";
 import RelatedProducts from "./related-products";
 import { useAddToCart } from "@/hooks";
@@ -10,7 +9,6 @@ import { Button } from "zmp-ui";
 import Section from "@/components/section";
 import { useMemo, useState } from "react";
 
-const formatMoney = (value: unknown) => formatPrice(Number(value) || 0);
 const formatDate = (value?: string | Date) => {
   if (!value) return "";
   const date = new Date(value);
@@ -32,8 +30,11 @@ export default function ProductDetailPage() {
   const { id = "" } = useParams();
   const product = useAtomValue(productState(id));
   const navigate = useNavigate();
-  const { addToCart } = useAddToCart(product!);
   const [activeImage, setActiveImage] = useState("");
+  const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
+  const variants = Array.isArray(product?.variants) ? product.variants : [];
+  const selectedVariant = variants.length ? variants[Math.min(selectedVariantIndex, variants.length - 1)] : undefined;
+  const { addToCart } = useAddToCart(product!, selectedVariant);
 
   const images = useMemo(() => {
     if (!product) return [];
@@ -52,7 +53,6 @@ export default function ProductDetailPage() {
   }
 
   const currentImage = activeImage || images[0] || product.thumbnail;
-  const variants = Array.isArray(product.variants) ? product.variants : [];
   const totalQty = Number(product.qty ?? variants.reduce(
     (sum, variant) => sum + (Number(variant.qty) || 0), 0
   ));
@@ -113,21 +113,7 @@ export default function ProductDetailPage() {
               )}
             </div>
             <h1 className="text-lg font-bold leading-snug">{product.title || product.name}</h1>
-            <div className="flex items-end flex-wrap gap-x-2 gap-y-1">
-              <div className="text-xl font-bold text-primary">
-                {formatMoney(product.price)}
-              </div>
-              {Number(product.originalPrice) > Number(product.price) && (
-                <>
-                  <span className="text-xs text-subtitle line-through">
-                    {formatMoney(product.originalPrice)}
-                  </span>
-                  <span className="text-xs text-danger font-semibold">
-                    -{Math.round(100 - (Number(product.price) * 100) / Number(product.originalPrice))}%
-                  </span>
-                </>
-              )}
-            </div>
+            <p className="text-sm text-subtitle">Liên hệ Nhật Khang Bike để được tư vấn và báo giá</p>
             <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-subtitle">
               <span>★ {Number(product.rating || 0).toFixed(1)} / 5</span>
               <span>Còn hàng: {Math.max(0, totalQty)}</span>
@@ -143,7 +129,7 @@ export default function ProductDetailPage() {
             <Section title={`Phân loại / Phiên bản (${variants.length})`}>
               <div className="p-4 pt-2 space-y-3">
                 {variants.map((variant, index) => (
-                  <div key={variant._id || variant.variantCode || variant.sku || index} className="rounded-xl border border-[var(--zaui-light-border)] bg-section p-3 space-y-2">
+                  <div key={variant._id || variant.variantCode || variant.sku || index} className={`rounded-xl border bg-section p-3 space-y-2 ${selectedVariantIndex === index ? "border-primary" : "border-[var(--zaui-light-border)]"}`}>
                     <div className="flex gap-3">
                       {(variant.thumbnail || variant.image) && (
                         <img
@@ -153,8 +139,8 @@ export default function ProductDetailPage() {
                         />
                       )}
                       <div className="min-w-0 flex-1">
-                        <div className="font-semibold text-sm">{variant.name || `Phiên bản ${index + 1}`}</div>
-                        <div className="text-primary font-bold mt-1">{formatMoney(variant.price)}</div>
+                        <button type="button" onClick={() => setSelectedVariantIndex(index)} className={`font-semibold text-sm text-left ${selectedVariantIndex === index ? "text-primary" : "text-default"}`}>{variant.name || `Phiên bản ${index + 1}`}</button>
+                        {selectedVariantIndex === index && <span className="inline-block text-2xs text-primary mt-1">Đang chọn</span>}
                         <div className="text-xs text-subtitle mt-1">Tồn kho: {Number(variant.qty) || 0}</div>
                       </div>
                     </div>
