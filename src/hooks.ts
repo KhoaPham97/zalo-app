@@ -69,6 +69,10 @@ export function useCheckout() {
     try { savedUser = JSON.parse(localStorage.getItem("userInfo") || "{}"); } catch {}
     const customerName = String(address?.name || savedUser?.name || "").trim();
     const customerPhone = String(address?.phone || (typeof savedUser?.phone === "string" ? savedUser.phone : "")).trim();
+    if (deliveryMode === "pickup" && !station) {
+      toast.error("Chưa tải được điểm nhận hàng. Vui lòng thử lại sau giây lát.");
+      return;
+    }
     const customerAddress = deliveryMode === "pickup" ? String(station?.address || "").trim() : String(address?.address || "").trim();
     if (!customerName || !customerPhone || !customerAddress) {
       toast.error("Vui lòng nhập tên, số điện thoại và địa chỉ nhận hàng trước khi đặt");
