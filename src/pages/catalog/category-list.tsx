@@ -2,6 +2,7 @@ import TransitionLink from "@/components/transition-link";
 import { useAtomValue } from "jotai";
 import { categoriesState } from "@/state";
 import { useSearchParams } from "react-router-dom";
+import { resolveImageUrl } from "@/utils/image";
 
 const groups = [
   { type: "1", title: "Xe đạp", description: "Phụ tùng và phụ kiện xe đạp", emoji: "🚲" },
@@ -41,7 +42,7 @@ export default function CategoryListPage() {
                     to={`/category/${category._id || category.id}`}
                   >
                     <img
-                      src={category.image}
+                      src={resolveImageUrl(category.image)}
                       className="aspect-square w-full rounded-xl border border-black/5 bg-skeleton object-cover"
                       alt={category.name}
                       loading="lazy"
