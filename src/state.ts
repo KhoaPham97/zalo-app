@@ -125,7 +125,7 @@ export const cartTotalState = atom((get) => {
   return {
     totalItems: items.length,
     totalAmount: items.reduce(
-      (total, item) => total + item.product.price * item.quantity,
+      (total, item) => total + (Number(item.product.price) || 0) * item.quantity,
       0
     ),
   };
