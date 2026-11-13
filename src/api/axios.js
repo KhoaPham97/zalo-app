@@ -1,43 +1,40 @@
-// axios.js
 import Axios from "axios";
+import { BASE_URL } from "../api.ts";
 
-const axios = Axios.create({});
+const axios = Axios.create({
+  baseURL: BASE_URL,
+  timeout: 120000,
+});
 
-const serverUrl = window.location.href.includes("localhost")
-  ? "http://localhost:3001/api/"
-  : "https://nkbike.onrender.com/api/";
-// const serverUrl = "https://nkbike.onrender.com/api/";
-export const baseURL = `${serverUrl}`;
+export const baseURL = BASE_URL;
 
-axios.defaults.timeout = 120000; // Milliseconds
 axios.interceptors.request.use(
-  async function (config) {
-    // Retreive token from Redux OR localStorage or ....
+  (config) => {
+    config.headers = config.headers || {};
+    config.headers["Accept"] = "application/json";
 
-    config.headers["Content-Type"] = "application/json";
+    // The Zalo Mini App uses customer-side/public API access.
+    // Do not attach nk-admin's adminToken/accessToken to customer requests.
+    if (config.data && !(config.data instanceof FormData)) {
+      config.headers["Content-Type"] = "application/json";
+    }
+
     config.credentials = "same-origin";
-    config.baseURL = baseURL;
-
     return config;
   },
-  function (error) {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error),
 );
 
 axios.interceptors.response.use(
-  (res) => {
-    return res;
-  },
+  (response) => response,
   (error) => {
     if (error?.response?.status === 403) {
-      // Handle forbidden error
+      console.warn("API từ chối truy cập:", error?.response?.data);
+    } else if (error?.response?.status === 401) {
+      console.warn("API yêu cầu xác thực:", error?.response?.data);
     }
-    if (error?.response?.status === 401) {
-      // Handle unauthorized error (e.g., log out the user)
-    }
-    throw error; // Propagate the error
-  }
+    return Promise.reject(error);
+  },
 );
 
 export default axios;
