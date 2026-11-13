@@ -5,9 +5,9 @@ const RENDER_API_URL = "https://nkbike.onrender.com/api";
 const configuredApiUrl =
   import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL;
 
-const normalizeApiUrl = (url: string) => String(url).trim().replace(/\\/+$/, "");
+const normalizeApiUrl = (url: string) => String(url).trim().replace(/\/+$/, "");
 const isLocalApiUrl = (url: string) =>
-  /^https?:\\/\\/(localhost|127\\.0\\.0\\.1|\\[::1\\])(?::\\d+)?(\\/|$)/i.test(url);
+  /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(?::\d+)?(\/|$)/i.test(url);
 
 // Ignore localhost API values from old .env files so the app never falls back
 // to localhost:3001. A deliberate non-local VITE_API_URL can still override.
@@ -18,7 +18,7 @@ const BASE_URL = normalizeApiUrl(
 );
 
 export { BASE_URL };
-export const DEFAUL_URL = BASE_URL.replace(/\\/api$/i, "");
+export const DEFAUL_URL = BASE_URL.replace(/\/api$/i, "");
 
 export const API_ENDPOINTS = {
   // AUTH
