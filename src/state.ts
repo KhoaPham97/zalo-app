@@ -119,6 +119,7 @@ export const productState = atomFamily((id: string | number) =>
 
 export const cartState = atom<Cart>([]);
 export const orderNoteState = atomWithStorage<string>("nkbike_order_note", "");
+export const orderRefreshState = atom(0);
 
 export const selectedCartItemIdsState = atom<number[]>([]);
 
@@ -193,7 +194,8 @@ export const shippingAddressState = atomWithStorage<
 >(CONFIG.STORAGE_KEYS.SHIPPING_ADDRESS, undefined);
 
 export const ordersState = atomFamily((status: OrderStatus) =>
-  atom(async () => {
+  atom(async (get) => {
+    get(orderRefreshState);
     let userInfo: any = {};
     let savedAddress: any = {};
     try { userInfo = JSON.parse(localStorage.getItem(CONFIG.STORAGE_KEYS.USER_INFO) || "{}"); } catch {}
