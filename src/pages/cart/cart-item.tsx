@@ -9,7 +9,7 @@ const SWIPE_TO_DELTE_OFFSET = 80;
 
 export default function CartItem(props: CartItemProps) {
   const [quantity, setQuantity] = useState(props.quantity);
-  const { addToCart } = useAddToCart(props.product);
+  const { addToCart } = useAddToCart(props.product, props.variant);
 
   useEffect(() => {
     addToCart(quantity);
@@ -39,7 +39,7 @@ export default function CartItem(props: CartItemProps) {
         <img src={props.product.thumbnail || props.product.image || ""} alt={props.product.title || props.product.name || ""} className="w-14 h-14 rounded-lg object-cover" />
         <div className="flex-1 min-w-0 space-y-1">
           <div className="text-sm line-clamp-2">{props.product.title || props.product.name}</div>
-          <div className="text-xs text-subtitle">Số lượng: {quantity}</div>
+          {props.variant?.name && <div className="text-xs text-subtitle">Phân loại: {props.variant.name}</div>}<div className="text-xs text-subtitle">Số lượng: {quantity}</div>
         </div>
         <div className="text-sm font-medium">x{quantity}</div>
       </animated.div>
