@@ -1,0 +1,22 @@
+
+[
+  {
+    "id": 1,
+    "name": "Phụ tùng xe điện Nhật Khang - Chi nhánh 1",
+    "image": "https://zalo-miniapp.github.io/zaui-market/dummy/product/apples.png",
+    "shopAddress": "45 Tân Thành, Phường 12, Quận 5, Hồ Chí Minh",    "location": {
+      "lat": 10.768746,
+      "lng": 106.728228
+    }
+  },
+  {
+    "id": 2,
+    "name": "Phụ tùng xe điện Nhật Khang - Chi nhánh 2",
+    "image": "https://zalo-miniapp.github.io/zaui-market/dummy/product/apples.png",
+    "address": "70 Chu Văn An, Phường Tân Thành, Quận Tân Phú Thành phố Hồ Chí Minh, Việt Nam",
+    "location": {
+      "lat": 10.768746,
+      "lng": 106.728228
+    }
+  }
+]
