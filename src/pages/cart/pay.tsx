@@ -1,32 +1,26 @@
 import { useCheckout } from "@/hooks";
-import { useAtomValue } from "jotai";
-import { cartTotalState } from "@/state";
-import { formatPrice } from "@/utils/format";
 import { Button } from "zmp-ui";
 import { useState } from "react";
 
 export default function Pay() {
-  const { totalAmount } = useAtomValue(cartTotalState);
   const checkout = useCheckout();
-  const [paying, setPaying] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   return (
-    <div className="flex-none flex items-center py-3 px-4 space-x-2 bg-section">
-      <div className="space-y-1 flex-1">
-        <div className="text-xs text-subtitle">Tổng thanh toán</div>
-        <div className="text-sm font-medium text-primary">
-          {formatPrice(totalAmount)}
-        </div>
+    <div className="flex-none flex items-center gap-3 py-3 px-4 bg-section border-t border-black/5">
+      <div className="flex-1 min-w-0">
+        <div className="text-sm font-semibold">Gửi yêu cầu đặt hàng</div>
+        <div className="text-2xs text-subtitle mt-0.5">Chưa thanh toán · Chờ nhân viên xác nhận</div>
       </div>
       <Button
+        disabled={submitting}
+        loading={submitting}
         onClick={async () => {
-          setPaying(true);
-          await checkout();
-          setPaying(false);
+          setSubmitting(true);
+          try { await checkout(); } finally { setSubmitting(false); }
         }}
-        disabled={paying}
       >
-        Thanh toán
+        Đặt hàng
       </Button>
     </div>
   );
