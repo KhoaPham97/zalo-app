@@ -96,8 +96,8 @@ export function useCheckout() {
         desc: "Thanh toán đơn hàng",
         item: cart.map((item) => ({
           id: item.product._id,
-          name: item.product.name,
-          price: item.product.price,
+          name: item.product.title || item.product.name || "",
+          price: Number(item.product.price) || 0,
           quantity: item.quantity,
         })),
       }).then((res) => {
