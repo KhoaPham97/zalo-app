@@ -4,6 +4,7 @@ import { animated, useSpring } from "@react-spring/web";
 import { useDrag } from "@use-gesture/react";
 import { useEffect, useState } from "react";
 import { Icon } from "zmp-ui";
+import { resolveImageUrl } from "@/utils/image";
 
 const SWIPE_TO_DELTE_OFFSET = 80;
 
@@ -36,7 +37,7 @@ export default function CartItem(props: CartItemProps) {
         </button>
       </div>
       <animated.div {...bind()} style={{ x }} className="bg-white p-4 flex items-center space-x-3 relative">
-        <img src={props.product.thumbnail || props.product.image || ""} alt={props.product.title || props.product.name || ""} className="w-14 h-14 rounded-lg object-cover" />
+        <img src={resolveImageUrl(props.variant?.thumbnail || props.variant?.image || props.product.thumbnail || props.product.image)} alt={props.product.title || props.product.name || ""} className="w-14 h-14 rounded-lg object-cover" />
         <div className="flex-1 min-w-0 space-y-1">
           <div className="text-sm line-clamp-2">{props.product.title || props.product.name}</div>
           {props.variant?.name && <div className="text-xs text-subtitle">Phân loại: {props.variant.name}</div>}<div className="text-xs text-subtitle">Số lượng: {quantity}</div>
