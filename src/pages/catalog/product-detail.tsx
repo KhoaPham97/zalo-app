@@ -32,7 +32,7 @@ export default function ProductDetailPage() {
   const { id = "" } = useParams();
   const product = useAtomValue(productState(id));
   const navigate = useNavigate();
-  const { addToCart } = useAddToCart(product);
+  const { addToCart } = useAddToCart(product!);
   const [activeImage, setActiveImage] = useState("");
 
   const images = useMemo(() => {
