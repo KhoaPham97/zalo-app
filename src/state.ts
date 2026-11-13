@@ -220,7 +220,7 @@ export const ordersState = atomFamily((status: OrderStatus) =>
       note: order.note || "",
       total: Number(order.totalAmount || 0),
       delivery: {
-        type: "shipping",
+        type: "shipping" as const,
         alias: "Địa chỉ nhận hàng",
         address: order.customerAddress || "",
         name: order.customerName || "",
@@ -230,6 +230,7 @@ export const ordersState = atomFamily((status: OrderStatus) =>
         product: {
           _id: String(item.productId || ""),
           title: item.productTitle || "Sản phẩm",
+          price: 0,
           thumbnail: item.thumbnail || "",
         },
         quantity: Number(item.qty || 0),
