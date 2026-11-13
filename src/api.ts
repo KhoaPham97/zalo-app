@@ -52,7 +52,8 @@ export const API_ENDPOINTS = {
   CUSTOMERS: `${BASE_URL}/customers`,
 
   // ORDERS
-  ORDERS: `${BASE_URL}/orders`,
+  // Backend order router is mounted at /api/order (singular).
+  ORDERS: `${BASE_URL}/order`,
   ORDER: `${BASE_URL}/order`,
   SYNC_ORDER_VARIANTS: `${BASE_URL}/order/sync-variants`,
 
