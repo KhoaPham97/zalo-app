@@ -210,7 +210,6 @@ export const ordersState = atomFamily((status: OrderStatus) =>
     if (!data || data.response || !Array.isArray(data.orders)) return [];
 
     const visibleOrders = data.orders.filter((order: any) => {
-      if (status === "pending") return ["pending", "confirmed"].includes(order.status);
       return order.status === status;
     });
 
