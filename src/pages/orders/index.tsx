@@ -1,6 +1,7 @@
 import { Tabs } from "zmp-ui";
 import OrderList from "./order-list";
 import { ordersState } from "@/state";
+import { OrderStatus } from "@/types";
 import { useNavigate, useParams } from "react-router-dom";
 
 const orderTabs = [
@@ -13,7 +14,7 @@ const orderTabs = [
 
 function OrdersPage() {
   const { status } = useParams();
-  const activeStatus = orderTabs.some((tab) => tab.key === status) ? status! : "pending";
+  const activeStatus: OrderStatus = orderTabs.some((tab) => tab.key === status) ? (status as OrderStatus) : "pending";
   const navigate = useNavigate();
 
   return (
