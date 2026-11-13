@@ -138,7 +138,7 @@ export const searchResultState = atom(async (get) => {
   const products = await get(productsState);
   await new Promise((resolve) => setTimeout(resolve, 1000));
   return products.filter((product) =>
-    product.name.toLowerCase().includes(keyword.toLowerCase())
+    String(product.title || product.name || "").toLowerCase().includes(keyword.toLowerCase())
   );
 });
 
