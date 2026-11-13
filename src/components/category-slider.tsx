@@ -2,6 +2,7 @@ import { categoriesState } from "@/state";
 import { useAtomValue } from "jotai";
 import { useParams } from "react-router-dom";
 import TransitionLink from "./transition-link";
+import { resolveImageUrl } from "@/utils/image";
 
 export default function CategorySlider() {
   const { id } = useParams();
@@ -20,7 +21,7 @@ export default function CategorySlider() {
           )}
         >
           <img
-            src={category.image}
+            src={resolveImageUrl(category.image)}
             className="w-6 h-6 rounded-full bg-skeleton"
           />
           <p className="text-xs whitespace-nowrap">{category.name}</p>
