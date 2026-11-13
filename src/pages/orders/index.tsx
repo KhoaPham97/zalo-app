@@ -5,12 +5,13 @@ import { useNavigate, useParams } from "react-router-dom";
 
 function OrdersPage() {
   const { status } = useParams();
+  const activeStatus = status || "pending";
   const navigate = useNavigate();
 
   return (
     <Tabs
       className="h-full flex flex-col"
-      activeKey={status}
+      activeKey={activeStatus}
       onChange={(status) => navigate(`/orders/${status}`)}
     >
       <Tabs.Tab key="pending" label="Đang xử lý">
