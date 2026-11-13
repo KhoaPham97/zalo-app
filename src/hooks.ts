@@ -82,7 +82,7 @@ export function useCheckout() {
     }
     const payload = {
       customerName, customerPhone, customerAddress, paymentMethod: "cod",
-      note: ["Nguồn: Zalo Mini App", deliveryMode === "pickup" ? "Hình thức nhận: Khách tự đến lấy" : "Hình thức nhận: Giao tận nơi", String(note || "").trim()].filter(Boolean).join(" | "),
+      note: [deliveryMode === "pickup" ? "Hình thức nhận: Khách tự đến lấy" : "Hình thức nhận: Giao tận nơi", String(note || "").trim()].filter(Boolean).join(" | "),
       items: cart.map((item) => ({
         productId: String(item.product._id), qty: item.quantity,
         variantName: item.variant?.name || "", variantCode: item.variant?.variantCode || "",
