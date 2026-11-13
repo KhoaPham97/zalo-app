@@ -99,7 +99,7 @@ export function useCheckout() {
         return;
       }
 
-      if (!/^\\d{9,12}$/.test(normalizedPhone)) {
+      if (!/^\d{9,12}$/.test(normalizedPhone)) {
         toast.error("Số điện thoại chưa hợp lệ. Vui lòng kiểm tra lại.");
         navigate("/shipping-address");
         return;
