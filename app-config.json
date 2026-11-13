@@ -1,6 +1,6 @@
 {
   "app": {
-    "title": "ZaUI F&B",
+    "title": "NHẬT KHANG BIKE",
     "textColor": "white",
     "headerColor": "#ffffff",
     "statusBar": "transparent",
@@ -13,11 +13,11 @@
   "listSyncJS": [],
   "listAsyncJS": [],
   "template": {
-    "name": "zaui-market",
-    "apiUrl": "",
+    "name": "nhat-khang-bike",
+    "apiUrl": "https://nkbike.onrender.com/api/",
     "oaIDtoOpenChat": "4318657068771012646",
     "logoUrl": "https://photo-logo-mapps.zadn.vn/284fadf20bb7e2e9bba6.jpg",
-    "shopName": "Phụ tùng xe điện Nhật Khang",
-    "shopAddress": "70 Chu Văn An, Phường Phú Thọ Hoà, Hồ Chí Minh"
+    "shopName": "NHẬT KHANG BIKE",
+    "shopAddress": "70 Chu Văn An, Phường Phú Thọ Hòa, TP. Hồ Chí Minh"
   }
 }
