@@ -98,7 +98,7 @@ const router = createBrowserRouter(
           handle: {
             search: true,
             title: ({ categories, params }) =>
-              categories.find((c) => String(c.id) === params.id)?.name,
+              categories.find((c) => String(c._id || c.id) === params.id)?.name,
           },
         },
         {
