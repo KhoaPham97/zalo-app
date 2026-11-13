@@ -23,7 +23,7 @@ const isCloudflareWorkers =
 const configuredApiUrl =
   import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL;
 
-const normalizeApiUrl = (url: string) => String(url).trim().replace(/\\/+$/, "");
+const normalizeApiUrl = (url: string) => String(url).trim().replace(/\/+$/, "");
 
 const detectedApiUrl = isLocalhost
   ? LOCAL_API_URL
@@ -32,7 +32,7 @@ const detectedApiUrl = isLocalhost
     : RENDER_API_URL;
 
 export const BASE_URL = normalizeApiUrl(configuredApiUrl || detectedApiUrl);
-export const DEFAUL_URL = BASE_URL.replace(/\\/api$/i, "");
+export const DEFAUL_URL = BASE_URL.replace(/\/api$/i, "");
 
 export const API_ENDPOINTS = {
   // AUTH
