@@ -4,26 +4,33 @@ import { Icon, List } from "zmp-ui";
 import DeliverySummary from "../cart/delivery-summary";
 
 function OrderInfo(props: { order: Order }) {
+  const note = String(props.order.note || "");
+  const pickupMatch = note.match(/^Nhận tại cửa hàng:\s*(.*?)\s*-\s*(.*?)(?:\s*\|\s*|$)/);
+  const customerNote = note
+    .replace(/^Nhận tại cửa hàng:\s*.*?(?:\s*\|\s*|$)/, "")
+    .replace(/^Giao tận nơi:\s*.*?(?:\s*\|\s*|$)/, "")
+    .trim();
+
   return (
-    <List noSpacing className="bg-section rounded-lg">
-      {props.order.delivery.type === "pickup" ? (
+    <List noSpacing className="rounded-xl border border-black/5 bg-section">
+      {pickupMatch ? (
         <DeliverySummary
           icon={<HomeIcon />}
-          title="Giao đến"
-          subtitle={props.order.delivery.name}
-          description={props.order.delivery.address}
+          title="Nhận hàng tại cửa hàng"
+          subtitle={pickupMatch[1]}
+          description={pickupMatch[2]}
         />
       ) : (
         <DeliverySummary
           icon={<LocationMarkerLineIcon />}
-          title="Giao đến"
+          title="Địa chỉ nhận hàng"
           subtitle={props.order.delivery.alias}
           description={props.order.delivery.address}
         />
       )}
-      {props.order.note && (
+      {customerNote && (
         <List.Item prefix={<Icon icon="zi-note" />} title="Ghi chú">
-          <span className="text-xs text-inactive">{props.order.note}</span>
+          <span className="text-xs text-inactive">{customerNote}</span>
         </List.Item>
       )}
     </List>
