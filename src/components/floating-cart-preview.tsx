@@ -1,14 +1,13 @@
 import { useAtomValue } from "jotai";
 import Badge from "./badge";
 import { CartIcon } from "./vectors";
-import { cartState, cartTotalState } from "@/state";
-import { formatPrice } from "@/utils/format";
+import { cartState } from "@/state";
 import TransitionLink from "./transition-link";
 import { useRouteHandle } from "@/hooks";
 
 function FloatingCartPreview() {
   const cart = useAtomValue(cartState);
-  const { totalItems, totalAmount } = useAtomValue(cartTotalState);
+  const totalItems = cart.length;
   const [handle] = useRouteHandle();
 
   if (totalItems === 0 || handle?.noFloatingCart) {
@@ -31,7 +30,7 @@ function FloatingCartPreview() {
         <CartIcon mono />
       </Badge>
       <span className="text-base font-medium flex-1">
-        {formatPrice(totalAmount)}
+        {totalItems} sản phẩm trong giỏ
       </span>
       <span className="text-sm">Đặt mua</span>
     </TransitionLink>
