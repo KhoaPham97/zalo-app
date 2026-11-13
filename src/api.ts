@@ -1,38 +1,24 @@
 // API configuration shared with nk-admin.
-// Local development uses localhost:3001; all deployed frontends use Render API.
-const LOCAL_API_URL = "http://localhost:3001/api";
+// Zalo UI always uses the hosted Render API, including local development.
 const RENDER_API_URL = "https://nkbike.onrender.com/api";
-const CLOUDFLARE_API_URL = RENDER_API_URL;
-
-const hostname =
-  typeof window !== "undefined" ? window.location.hostname.toLowerCase() : "";
-
-const isLocalhost =
-  hostname === "localhost" ||
-  hostname === "127.0.0.1" ||
-  hostname === "::1";
-
-const isCloudflarePages =
-  hostname === "nk-admin.phamdangkhoa0403.workers.dev" ||
-  hostname.endsWith(".pages.dev");
-
-const isCloudflareWorkers =
-  hostname === "nkbike.phamdangkhoa0403.workers.dev" ||
-  hostname.endsWith(".workers.dev");
 
 const configuredApiUrl =
   import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL;
 
-const normalizeApiUrl = (url: string) => String(url).trim().replace(/\/+$/, "");
+const normalizeApiUrl = (url: string) => String(url).trim().replace(/\\/+$/, "");
+const isLocalApiUrl = (url: string) =>
+  /^https?:\\/\\/(localhost|127\\.0\\.0\\.1|\\[::1\\])(?::\\d+)?(\\/|$)/i.test(url);
 
-const detectedApiUrl = isLocalhost
-  ? LOCAL_API_URL
-  : isCloudflarePages || isCloudflareWorkers
-    ? CLOUDFLARE_API_URL
-    : RENDER_API_URL;
+// Ignore localhost API values from old .env files so the app never falls back
+// to localhost:3001. A deliberate non-local VITE_API_URL can still override.
+const BASE_URL = normalizeApiUrl(
+  configuredApiUrl && !isLocalApiUrl(configuredApiUrl)
+    ? configuredApiUrl
+    : RENDER_API_URL,
+);
 
-export const BASE_URL = normalizeApiUrl(configuredApiUrl || detectedApiUrl);
-export const DEFAUL_URL = BASE_URL.replace(/\/api$/i, "");
+export { BASE_URL };
+export const DEFAUL_URL = BASE_URL.replace(/\\/api$/i, "");
 
 export const API_ENDPOINTS = {
   // AUTH
