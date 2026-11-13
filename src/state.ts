@@ -203,11 +203,16 @@ export const ordersState = atomFamily((status: OrderStatus) =>
 
     const data = await getRequest({
       url: API_ENDPOINTS.ORDERS,
-      params: { phone, status },
+      params: { phone },
     });
     if (!data || data.response || !Array.isArray(data.orders)) return [];
 
-    return data.orders.map((order: any) => ({
+    const visibleOrders = data.orders.filter((order: any) => {
+      if (status === "pending") return ["pending", "confirmed"].includes(order.status);
+      return order.status === status;
+    });
+
+    return visibleOrders.map((order: any) => ({
       id: String(order._id),
       code: order.code || "",
       status: order.status || "pending",
