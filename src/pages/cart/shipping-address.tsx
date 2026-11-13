@@ -57,12 +57,14 @@ function ShippingAddressPage() {
             name="name"
             label="Tên người nhận"
             placeholder="Nhập tên người nhận"
+            required
             defaultValue={address?.name}
           />
           <Input
             name="phone"
             label="Số điện thoại"
             placeholder="Nhập số điện thoại"
+            required
             defaultValue={address?.phone}
           />
         </div>
