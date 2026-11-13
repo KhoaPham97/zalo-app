@@ -1,9 +1,9 @@
-export function formatPrice(price: number) {
+export function formatPrice(price: number | string) {
   return new Intl.NumberFormat("vi-VN", {
     style: "currency",
     currency: "VND",
     currencyDisplay: "code",
-  }).format(price);
+  }).format(Number(price) || 0);
 }
 
 export function formatDistant(value: number) {
