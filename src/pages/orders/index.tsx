@@ -3,26 +3,30 @@ import OrderList from "./order-list";
 import { ordersState } from "@/state";
 import { useNavigate, useParams } from "react-router-dom";
 
+const orderTabs = [
+  { key: "pending", label: "Chờ xác nhận" },
+  { key: "confirmed", label: "Đã xác nhận" },
+  { key: "shipping", label: "Đang giao" },
+  { key: "completed", label: "Hoàn tất" },
+  { key: "cancelled", label: "Đã hủy" },
+] as const;
+
 function OrdersPage() {
   const { status } = useParams();
-  const activeStatus = status || "pending";
+  const activeStatus = orderTabs.some((tab) => tab.key === status) ? status! : "pending";
   const navigate = useNavigate();
 
   return (
     <Tabs
       className="h-full flex flex-col"
       activeKey={activeStatus}
-      onChange={(status) => navigate(`/orders/${status}`)}
+      onChange={(nextStatus) => navigate(`/orders/${nextStatus}`)}
     >
-      <Tabs.Tab key="pending" label="Đang xử lý">
-        <OrderList ordersState={ordersState("pending")} />
-      </Tabs.Tab>
-      <Tabs.Tab key="shipping" label="Đang giao">
-        <OrderList ordersState={ordersState("shipping")} />
-      </Tabs.Tab>
-      <Tabs.Tab key="completed" label="Lịch sử">
-        <OrderList ordersState={ordersState("completed")} />
-      </Tabs.Tab>
+      {orderTabs.map((tab) => (
+        <Tabs.Tab key={tab.key} label={tab.label}>
+          <OrderList ordersState={ordersState(tab.key)} />
+        </Tabs.Tab>
+      ))}
     </Tabs>
   );
 }
