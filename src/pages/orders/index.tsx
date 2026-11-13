@@ -1,7 +1,7 @@
 import { Tabs } from "zmp-ui";
 import OrderList from "./order-list";
 import { ordersState } from "@/state";
-import { OrderStatus } from "@/types";
+import type { OrderStatus } from "@/types";
 import { useNavigate, useParams } from "react-router-dom";
 
 const orderTabs = [
