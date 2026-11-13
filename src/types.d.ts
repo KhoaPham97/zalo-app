@@ -6,21 +6,48 @@ export interface UserInfo {
   address: string;
 }
 
+export interface ProductVariant {
+  _id?: string;
+  name: string;
+  variantCode?: string;
+  sku?: string;
+  price?: number | string;
+  qty?: number;
+  weight?: number;
+  thumbnail?: string;
+  image?: string;
+  packageQuantity?: number;
+}
+
 export interface Product {
-  _id: number;
+  _id: string | number;
+  id?: string | number;
   title: string;
-  price: number;
-  originalPrice?: number;
+  name?: string;
+  price: number | string;
+  originalPrice?: number | string;
   thumbnail: string;
-  category: Category;
+  images?: string[];
+  category?: string | { name?: string };
+  categoryId?: string;
   detail?: string;
-  sizes?: Size[];
-  colors?: Color[];
+  description?: string;
+  brand?: string;
+  type?: string;
+  qty?: number;
+  stock?: string;
+  rating?: number;
+  soldQty?: number;
+  variants?: ProductVariant[];
+  compatibleVehicles?: string[];
+  created_at?: string | Date;
+  updated_at?: string | Date;
+  isVisible?: boolean;
 }
 
 export interface Category {
-  _id: number;
-  id: number;
+  _id: string | number;
+  id: string | number;
   name: string;
   image: string;
 }
@@ -32,10 +59,10 @@ export interface CartItem {
 
 export type Cart = CartItem[];
 
-export interface Location {
+export type Location = {
   lat: number;
   lng: number;
-}
+};
 
 export interface ShippingAddress {
   alias: string;
