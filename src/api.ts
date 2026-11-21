@@ -1,24 +1,23 @@
 // API configuration shared with nk-admin.
-// All environments use Cloudflare Workers by default.
-const CLOUDFLARE_API_URL = "https://nkbike.phamdangkhoa0403.workers.dev/api";
+// Production defaults to the existing Render backend until Cloudflare Free is ready.
+const RENDER_API_URL = "https://nkbike.onrender.com/api";
 
 const configuredApiUrl =
   import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL;
 
-const normalizeApiUrl = (url: string) => String(url).trim().replace(/\/+$/, "");
+const normalizeApiUrl = (url: string) => String(url).trim().replace(/\\/+$/, "");
 const isLocalApiUrl = (url: string) =>
-  /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(?::\d+)?(\/|$)/i.test(url);
+  /^https?:\\/\\/(localhost|127\\.0\\.0\\.1|\\[::1\\])(?::\\d+)?(\\/|$)/i.test(url);
 
-// Ignore localhost API values from old .env files so the app never falls back
-// to localhost:3001. A deliberate non-local VITE_API_URL can still override.
+// Ignore localhost values from old .env files; users' devices must call Render.
 const BASE_URL = normalizeApiUrl(
   configuredApiUrl && !isLocalApiUrl(configuredApiUrl)
     ? configuredApiUrl
-    : CLOUDFLARE_API_URL,
+    : RENDER_API_URL,
 );
 
 export { BASE_URL };
-export const DEFAUL_URL = BASE_URL.replace(/\/api$/i, "");
+export const DEFAUL_URL = BASE_URL.replace(/\\/api$/i, "");
 
 export const API_ENDPOINTS = {
   // AUTH
@@ -52,7 +51,6 @@ export const API_ENDPOINTS = {
   CUSTOMERS: `${BASE_URL}/customers`,
 
   // ORDERS
-  // Backend order router is mounted at /api/order (singular).
   ORDERS: `${BASE_URL}/order`,
   ORDER: `${BASE_URL}/order`,
   SYNC_ORDER_VARIANTS: `${BASE_URL}/order/sync-variants`,
