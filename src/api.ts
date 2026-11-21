@@ -1,6 +1,6 @@
 // API configuration shared with nk-admin.
-// Zalo UI always uses the hosted Render API, including local development.
-const RENDER_API_URL = "https://nkbike.onrender.com/api";
+// All environments use Cloudflare Workers by default.
+const CLOUDFLARE_API_URL = "https://nkbike.phamdangkhoa0403.workers.dev/api";
 
 const configuredApiUrl =
   import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL;
@@ -14,7 +14,7 @@ const isLocalApiUrl = (url: string) =>
 const BASE_URL = normalizeApiUrl(
   configuredApiUrl && !isLocalApiUrl(configuredApiUrl)
     ? configuredApiUrl
-    : RENDER_API_URL,
+    : CLOUDFLARE_API_URL,
 );
 
 export { BASE_URL };
